@@ -1,7 +1,7 @@
 from types import TracebackType
 from typing import Type, Iterator
 from mylib._internal.table_serializing import xlsx_to_matrix, matrix_to_xlsx
-
+from mylib.common.exception import MylibException
 
 class DiskTable[Model]:
     path: str
@@ -40,6 +40,9 @@ class DiskTable[Model]:
         return self.table
 
     def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None,) -> None:
+        if exc_type is not None:
+            return
+        
         headers = []
         field_names = []
 
