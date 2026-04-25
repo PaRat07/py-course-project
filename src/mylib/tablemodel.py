@@ -34,13 +34,16 @@ class Validator[T](Protocol):
     def validate(self, value: T) -> None: ...
 
 
+class IdentityRenamer:
+    def header(self, s: str) -> str:
+        return s
 
 
 
 
 
-class Field[T]:
-    renamer: Renamer | None
+class FieldT[T]:
+    renamer: Renamer
     validators: list[Validator[T]]
     name: str
     
@@ -61,6 +64,9 @@ class Field[T]:
 
             if not usable:
                 raise TypeError(f"Field annotation {annot} is not valid")
+
+        if renamer is None:
+            renamer = IdentityRenamer()
         self.renamer = renamer
 
     def __set_name__(self, owner, name):
@@ -76,15 +82,22 @@ class Field[T]:
             validator.validate(value)
         setattr(instance, f"_{self.name}", value)
 
+def Field(*args) -> Any:
+    return FieldT(*args)
+
 
 class TableValidatorMeta(type):
     def __new__(mcs, name: str, bases: tuple[type, ...], attrs: Dict[str, Any]):
-        fields = {}
+        fields_meta: Dict[str, FieldT[Any]] = {}
         annotations: Dict[str, type] = attrs.get('__annotations__', {})
+        new_attrs: Dict[str, Any] = {}
         for attr_name, attr_value in attrs.items():
-            if isinstance(attr_value, Field):
-                fields[attr_name] = annotations[attr_name]()
-        attrs['__fields__'] = fields
-        return super().__new__(mcs, name, bases, attrs)
+            if isinstance(attr_value, FieldT):
+                new_attrs[attr_name] = annotations[attr_name]()
+                fields_meta[attr_name] = attr_value
+            else:
+                new_attrs[attr_name] = attr_value
+        new_attrs['_ fields metadata'] = fields_meta
+        return super().__new__(mcs, name, bases, new_attrs)
 
 class TableValidator(metaclass=TableValidatorMeta): ...
