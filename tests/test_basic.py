@@ -10,3 +10,5 @@ class Student(TableValidator):
 with DiskTable(path="/tmp/test/test.xlsx", model=Student) as tbl:
     for student in tbl:
         student.task1_points //= 2
+
+print('Succeed')

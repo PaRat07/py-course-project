@@ -1,5 +1,5 @@
 from types import TracebackType
-from typing import Type, Iterator
+from typing import Type, Iterator, Any
 from mylib._internal.table_serializing import xlsx_to_matrix, matrix_to_xlsx
 from mylib.common.exception import MylibException
 
@@ -11,7 +11,7 @@ class DiskTable[Model]:
 
     @staticmethod
     def _validate(obj: Model) -> None:
-        for field_name, field_descriptor in getattr(self.model, '_ fields metadata').items():
+        for field_name, field_descriptor in getattr(obj, '_ fields metadata').items():
             value = getattr(obj, field_name)
             for valor in field_descriptor.validators:
                 valor(value)
@@ -27,8 +27,8 @@ class DiskTable[Model]:
 
         headers: list[str] = [str(h) if h is not None else "" for h in mat[0]]
 
-        header_to_field = {}
-        field_to_header = {}
+        header_to_field: dict[str, str] = {}
+        field_to_header: dict[str, str] = {}
 
         # build header <-> field name mapping
         for field_name, field_descriptor in getattr(self.model, '_ fields metadata').items():
@@ -54,8 +54,8 @@ class DiskTable[Model]:
         if exc_type is not None:
             return
         
-        headers = []
-        field_names = []
+        headers: list[str] = []
+        field_names: list[str] = []
 
         for field_name, field_descriptor in getattr(self.model, '_ fields metadata').items():
             header_name = field_descriptor.renamer.header(field_name)
@@ -66,7 +66,7 @@ class DiskTable[Model]:
         matrix = [headers]
         for instance in self.table:
             self._validate(instance)
-            row = []
+            row: list[Any] = []
             for field_name in field_names:
                 value = getattr(instance, field_name, None)
                 row.append(value)

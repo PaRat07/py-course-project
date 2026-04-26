@@ -35,8 +35,8 @@ class Validator[T](Protocol):
 
 
 class IdentityRenamer:
-    def header(self, s: str) -> str:
-        return s
+    def header(self, old_header: str) -> str:
+        return old_header
 
 
 
@@ -47,7 +47,7 @@ class FieldT[T]:
     validators: list[Validator[T]]
     name: str
     
-    def __init__(self, *annotations) -> None:
+    def __init__(self, *annotations: Renamer | Validator[T]) -> None:
         renamer: Renamer | None = None
         self.validators = []
         for annot in annotations:
@@ -69,18 +69,18 @@ class FieldT[T]:
             renamer = IdentityRenamer()
         self.renamer = renamer
 
-    def __set_name__(self, owner, name):
-        self.name = name
+    # def __set_name__(self, owner, name):
+    #     self.name = name
 
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        return getattr(instance, f"_{self.name}", None)
+    # def __get__(self, instance, owner):
+    #     if instance is None:
+    #         return self
+    #     return getattr(instance, f"_{self.name}", None)
 
-    def __set__(self, instance, value):
-        for validator in self.validators:
-            validator.validate(value)
-        setattr(instance, f"_{self.name}", value)
+    # def __set__(self, instance, value):
+    #     for validator in self.validators:
+    #         validator.validate(value)
+    #     setattr(instance, f"_{self.name}", value)
 
 def Field(*args) -> Any:
     return FieldT(*args)
