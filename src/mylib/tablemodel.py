@@ -69,19 +69,6 @@ class FieldT[T]:
             renamer = IdentityRenamer()
         self.renamer = renamer
 
-    # def __set_name__(self, owner, name):
-    #     self.name = name
-
-    # def __get__(self, instance, owner):
-    #     if instance is None:
-    #         return self
-    #     return getattr(instance, f"_{self.name}", None)
-
-    # def __set__(self, instance, value):
-    #     for validator in self.validators:
-    #         validator.validate(value)
-    #     setattr(instance, f"_{self.name}", value)
-
 def Field(*args) -> Any:
     return FieldT(*args)
 
