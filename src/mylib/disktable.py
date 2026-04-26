@@ -3,10 +3,19 @@ from typing import Type, Iterator
 from mylib._internal.table_serializing import xlsx_to_matrix, matrix_to_xlsx
 from mylib.common.exception import MylibException
 
+
 class DiskTable[Model]:
     path: str
     table: list[Model]
     model: Type[Model]
+
+    @staticmethod
+    def _validate(obj: Model) -> None:
+        for field_name, field_descriptor in getattr(self.model, '_ fields metadata').items():
+            value = getattr(obj, field_name)
+            for valor in field_descriptor.validators:
+                valor(value)
+        
 
     def __init__(self, path: str, model: Type[Model]):
         self.path = path
@@ -35,7 +44,9 @@ class DiskTable[Model]:
                     field_name = header_to_field[header]
                     value = row[col_idx]
                     setattr(instance, field_name, value)
+            self._validate(instance)
             self.table.append(instance)
+
 
         return self.table
 
@@ -54,6 +65,7 @@ class DiskTable[Model]:
         # build matrix
         matrix = [headers]
         for instance in self.table:
+            self._validate(instance)
             row = []
             for field_name in field_names:
                 value = getattr(instance, field_name, None)

@@ -13,7 +13,7 @@ def xlsx_to_matrix(path: str) -> list[list[Any]]:
         if ws is None:
             raise DeserializingException(f"No active worksheet found in {path}")
 
-        matrix = []
+        matrix: list[list[Any]] = []
         for row in ws.iter_rows(values_only=True):
             matrix.append(list(row))
 
