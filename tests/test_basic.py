@@ -8,11 +8,14 @@ class Student(TableValidator):
     task1_points: int = Field(Rename("Задача 1"), InRange(0, 100))
     task2_points: int = Field(Rename("Задача 2"), InRange(0, 100))
 
+
 with DiskTable(path="/tmp/test/test.xlsx", model=Student) as tbl:
     for student in tbl:
         student.task1_points //= 2
 
-with GdocTable(spreadsheet_id="asdasd", credentials_path="/tmp/test/test.xlsx") as tbl:
+with GdocTable(spreadsheet_id="...",
+               credentials_path="...",
+               model=Student) as tbl:
     for student in tbl:
         student.task1_points //= 2
 
