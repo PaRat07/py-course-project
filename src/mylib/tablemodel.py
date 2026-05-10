@@ -1,5 +1,5 @@
 from mylib.common import exception as mylib_exc
-from typing import Protocol, Dict, Any
+from typing import Protocol, Dict, Any, runtime_checkable
 
 
 class ValidationError(mylib_exc.MylibException): ...
@@ -27,6 +27,7 @@ class Rename:
     def header(self, _: str) -> str:
         return self.new_name
 
+@runtime_checkable
 class Renamer(Protocol):
     def header(self, old_header: str) -> str: ...
 
@@ -39,7 +40,11 @@ class IdentityRenamer:
         return old_header
 
 
+def AsRenamer[T](obj: Renamer | Validator[T]) -> Renamer | None:
+    return obj if isinstance(obj, Renamer) else None
 
+def AsValidator[T](obj: Renamer | Validator[T]) -> Validator[T] | None:
+    return None if isinstance(obj, Renamer) else obj
 
 
 class FieldT[T]:
@@ -52,14 +57,14 @@ class FieldT[T]:
         self.validators = []
         for annot in annotations:
             usable = False
-            if hasattr(annot, "header"):
+            if as_ren := AsRenamer(annot):
                 if renamer is not None:
                     raise TypeError(f"Field has multiple renamers ({renamer} and {annot})")
-                renamer = annot
+                renamer = as_ren
                 usable = True
 
-            if hasattr(annot, "validate"):
-                self.validators.append(annot)
+            if as_val := AsValidator(annot):
+                self.validators.append(as_val)
                 usable = True
 
             if not usable:

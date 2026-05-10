@@ -3,6 +3,7 @@ from openpyxl import load_workbook
 from openpyxl.workbook import Workbook
 from mylib.common.exception import MylibException
 
+
 class SerializingException(MylibException): ...
 class DeserializingException(MylibException): ...
 
