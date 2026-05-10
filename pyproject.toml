@@ -13,6 +13,10 @@ dependencies = [
     "openpyxl>=3.0.0",
 ]
 
+
+[project.scripts]
+mylib = "mylib.cli:main"
+
 [tool.mypy]
 mypy_path = "src"
 explicit_package_bases = true
