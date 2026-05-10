@@ -23,6 +23,9 @@ with DiskTable(path="...", model=Student) as tbl:
         student.task1_points //= 2
 ```
 
+Способ установки:
+- `pip install <mylib_repo_root>`
+
 ### Идеи фичей для 2й итерации
 - Асинхронное взаимодействие с google docs таблицами (через async with GoogleTable(...) as tbl)
 - Способ описания миграций между схемами (пример - добавление задачи)
